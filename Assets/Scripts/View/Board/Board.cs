@@ -24,6 +24,8 @@ namespace BoardTools
         public static GameObject StartingZone4a;
         public static GameObject StartingZone5;
 
+        public static readonly float AR_WORLD_SCALE = 10f;
+
         public static readonly float SIZE_ANY = 91.44f;
         public static readonly float SIZE_X = 91.44f;
         public static readonly float SIZE_Y = 91.44f;
@@ -104,15 +106,14 @@ namespace BoardTools
             // Disable Camera Script so that movement only works through AR
             GameObject.Find("CameraHolder").GetComponent<CameraScript>().enabled = false;
 
-            // Enable AR scripts
-            //GameObject.Find("AR Session").SetActive(true);
-            GameObject.Find("CameraHolder/Main Camera/").SetActive(false);
+            // Enable AR scripts and disable Main Camera
+            GameObject.Find("ARManager").transform.Find("AR Session").gameObject.SetActive(true);
             GameObject.Find("CameraHolder").transform.Find("AR Camera").gameObject.SetActive(true);
+            GameObject.Find("CameraHolder/Main Camera/").SetActive(false);
 
             // Rotate Camera back to default and scale camera to match world
             GameObject.Find("CameraHolder").transform.rotation = new Quaternion(0, 0, 0, 0);
-            //GameObject.Find("CameraHolder/Main Camera/").transform.rotation = new Quaternion(0, 0, 0, 0);
-            GameObject.Find("CameraHolder").transform.localScale = new Vector3(10, 10, 10);
+            GameObject.Find("CameraHolder").transform.localScale = new Vector3(AR_WORLD_SCALE, AR_WORLD_SCALE, AR_WORLD_SCALE);
             
             RenderSettings.fog = false;
         }

@@ -1,4 +1,5 @@
-﻿namespace ExtraOptions
+﻿#if UNITY_ANDROID
+namespace ExtraOptions
 {
     namespace ExtraOptionsList
     {
@@ -22,3 +23,4 @@
         }
     }
 }
+#endif
