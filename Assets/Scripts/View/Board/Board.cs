@@ -96,7 +96,11 @@ namespace BoardTools
         private static void SetSceneAR()
         {
             // Can't use Cinematic Camera with AR
-            DebugManager.NoCinematicCamera = false;
+            DebugManager.NoCinematicCamera = true;
+
+            // Enable Portrait mode
+            Screen.autorotateToPortrait = true;
+            Screen.autorotateToPortraitUpsideDown = true;
 
             LoadSceneFromResources("ARScene");
 
@@ -104,11 +108,14 @@ namespace BoardTools
             GameObject.Find("SceneHolder/ARScene/TableClassic/Playmat").GetComponent<Renderer>().material.mainTexture = playmatTexture;
 
             // Disable Camera Script so that movement only works through AR
-            GameObject.Find("CameraHolder").GetComponent<CameraScript>().enabled = false;
+            //GameObject.Find("CameraHolder").GetComponent<CameraScript>().enabled = false;
 
-            // Enable AR scripts and disable Main Camera
+            // Enable AR scripts
             GameObject.Find("ARManager").transform.Find("AR Session").gameObject.SetActive(true);
-            GameObject.Find("CameraHolder").transform.Find("AR Camera").gameObject.SetActive(true);
+            GameObject.Find("CameraHolder").transform.Find("ARHolder").gameObject.SetActive(true);
+            GameObject.Find("CameraHolder/ARHolder/").transform.Find("AR Camera").gameObject.SetActive(true);
+
+            // Disable Main Camera
             GameObject.Find("CameraHolder/Main Camera/").SetActive(false);
 
             // Rotate Camera back to default and scale camera to match world
