@@ -97,6 +97,13 @@ namespace BoardTools
             Texture playmatTexture = (Texture)Resources.Load("Playmats/Playmat" + Options.Playmat + "Texture", typeof(Texture));
             GameObject.Find("SceneHolder/ARScene/TableClassic/Playmat").GetComponent<Renderer>().material.mainTexture = playmatTexture;
 
+            //Disable Camera Script so that movement only works through AR
+            GameObject.Find("CameraHolder").GetComponent<CameraScript>().enabled = false;
+            GameObject.Find("CameraHolder").transform.rotation = new Quaternion(0, 0, 0, 0);
+            GameObject.Find("CameraHolder").transform.localScale = new Vector3(10, 10, 10);
+
+            GameObject.Find("CameraHolder/Main Camera/").transform.rotation = new Quaternion(0, 0, 0, 0);
+
             RenderSettings.fog = false;
         }
 
