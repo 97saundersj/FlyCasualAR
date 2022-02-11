@@ -55,12 +55,13 @@ namespace BoardTools
 
         private static void SetPlaymatScene()
         {
-            SetSceneAR();
-            return;
-
             if (Options.Playmat.StartsWith("3DScene"))
             {
                 SetScene3D(Options.Playmat);
+            } 
+            else if (DebugManager.AugmentedReality)
+            {
+                SetSceneAR();
             }
             else
             {
@@ -92,18 +93,27 @@ namespace BoardTools
 
         private static void SetSceneAR()
         {
+            // Can't use Cinematic Camera with AR
+            DebugManager.NoCinematicCamera = false;
+
             LoadSceneFromResources("ARScene");
 
             Texture playmatTexture = (Texture)Resources.Load("Playmats/Playmat" + Options.Playmat + "Texture", typeof(Texture));
             GameObject.Find("SceneHolder/ARScene/TableClassic/Playmat").GetComponent<Renderer>().material.mainTexture = playmatTexture;
 
-            //Disable Camera Script so that movement only works through AR
+            // Disable Camera Script so that movement only works through AR
             GameObject.Find("CameraHolder").GetComponent<CameraScript>().enabled = false;
+
+            // Enable AR scripts
+            //GameObject.Find("AR Session").SetActive(true);
+            GameObject.Find("CameraHolder/Main Camera/").SetActive(false);
+            GameObject.Find("CameraHolder").transform.Find("AR Camera").gameObject.SetActive(true);
+
+            // Rotate Camera back to default and scale camera to match world
             GameObject.Find("CameraHolder").transform.rotation = new Quaternion(0, 0, 0, 0);
+            //GameObject.Find("CameraHolder/Main Camera/").transform.rotation = new Quaternion(0, 0, 0, 0);
             GameObject.Find("CameraHolder").transform.localScale = new Vector3(10, 10, 10);
-
-            GameObject.Find("CameraHolder/Main Camera/").transform.rotation = new Quaternion(0, 0, 0, 0);
-
+            
             RenderSettings.fog = false;
         }
 
