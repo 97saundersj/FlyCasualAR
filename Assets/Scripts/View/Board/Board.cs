@@ -5,6 +5,7 @@ using Arcs;
 using Players;
 using Ship;
 using UnityEngine;
+using UnityEngine.XR.ARFoundation;
 
 namespace BoardTools
 {
@@ -24,7 +25,7 @@ namespace BoardTools
         public static GameObject StartingZone4a;
         public static GameObject StartingZone5;
 
-        public static readonly float AR_WORLD_SCALE = 10f;
+        public static readonly float AR_WORLD_SCALE = 15f;
 
         public static readonly float SIZE_ANY = 91.44f;
         public static readonly float SIZE_X = 91.44f;
@@ -112,8 +113,9 @@ namespace BoardTools
 
             // Enable AR scripts
             GameObject.Find("ARManager").transform.Find("AR Session").gameObject.SetActive(true);
-            GameObject.Find("CameraHolder").transform.Find("ARHolder").gameObject.SetActive(true);
-            GameObject.Find("CameraHolder/ARHolder/").transform.Find("AR Camera").gameObject.SetActive(true);
+            GameObject.Find("CameraHolder").transform.Find("ARSessionOrigin").gameObject.SetActive(true);
+            GameObject.Find("CameraHolder/ARSessionOrigin").transform.Find("AR Camera").gameObject.SetActive(true);
+            //GameObject.Find("SceneHolder/").AddComponent<ARAnchor>();
 
             // Disable Main Camera
             GameObject.Find("CameraHolder/Main Camera/").SetActive(false);
@@ -121,8 +123,6 @@ namespace BoardTools
             // Rotate Camera back to default and scale camera to match world
             GameObject.Find("CameraHolder").transform.rotation = new Quaternion(0, 0, 0, 0);
             GameObject.Find("CameraHolder").transform.localScale = new Vector3(AR_WORLD_SCALE, AR_WORLD_SCALE, AR_WORLD_SCALE);
-            
-            RenderSettings.fog = false;
         }
 
         private static void LoadSceneFromResources(string sceneName)
