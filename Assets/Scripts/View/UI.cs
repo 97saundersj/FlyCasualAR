@@ -9,7 +9,7 @@ using SquadBuilderNS;
 using BoardTools;
 using GameCommands;
 using System;
-
+using AR;
 //Todo: Move to different scripts by menu names
 
 public class UI : MonoBehaviour {
@@ -200,6 +200,13 @@ public class UI : MonoBehaviour {
             GameObject.Find("UI").transform.Find("GameLogHolder").Find("Scroll").GetComponent<ScrollRect>().verticalNormalizedPosition = 0;
             newLogEntry.GetComponent<Text>().text = text;
         }
+    }
+
+    public void CompleteARPlacement()
+    {
+        GameObject.Find("UI/ARPanel").SetActive(false);
+        GameObject.Find("ARManager").GetComponent<ARManager>().SetPlacementConfirmed(true);
+        GameObject.Find("UI/DecisionPanelHolder").transform.Find("DecisionsPanel").gameObject.SetActive(true);
     }
 
     public void ShowDecisionsPanel()

@@ -151,8 +151,8 @@ public class CameraScript : MonoBehaviour {
     // Update is called once per frame
     void Update()
     {
-        // Don't update Main Camera if Augmented Reality is enabled
-        if(DebugManager.AugmentedReality)
+        //Don't update Main Camera if Augmented Reality is enabled
+        if (DebugManager.AugmentedReality)
         {
             return;
         }
