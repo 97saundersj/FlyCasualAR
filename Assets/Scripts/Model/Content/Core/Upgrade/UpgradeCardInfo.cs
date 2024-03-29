@@ -2,6 +2,7 @@
 using Actions;
 using ActionsList;
 using Arcs;
+using Content;
 using Ship;
 using System;
 using System.Collections.Generic;
@@ -31,6 +32,7 @@ namespace Upgrade
         public UpgradeCardRestrictions Restrictions { get; private set; }
         public SpecialWeaponInfo WeaponInfo { get; private set; }
         public List<ActionInfo> AddedActions { get; private set; }
+        public List<ActionInfo> AddedPotentialActions { get; private set; }
         public List<LinkedActionInfo> AddActionLinks { get; private set; }
         public List<UpgradeSlot> AddedSlots { get; private set; }
         public List<UpgradeType> ForbiddenSlots { get; private set; }
@@ -41,6 +43,7 @@ namespace Upgrade
         public ShipArcInfo AddArc { get; private set; }
         public ArcType RemoveArc { get; private set; }
         public Type RemoteType { get; private set; }
+        public List<Legality> LegalityInfo { get; private set; }
 
         public UpgradeCardInfo(
             string name,
@@ -63,6 +66,7 @@ namespace Upgrade
             ShipArcInfo addArc = null,
             ArcType removeArc = ArcType.None,
             ActionInfo addAction = null,
+            ActionInfo addPotentialAction = null,
             List<ActionInfo> addActions = null,
             List<LinkedActionInfo> addActionLinks = null,
             LinkedActionInfo addActionLink = null,
@@ -76,7 +80,8 @@ namespace Upgrade
             int addHull = 0,
             int addForce = 0,
             UpgradeSubType subType = UpgradeSubType.None,
-            Type remoteType = null
+            Type remoteType = null,
+            List<Legality> legalityInfo = null
         )
         {
             Name = name;
@@ -119,6 +124,9 @@ namespace Upgrade
             if (addAction != null) AddedActions.Add(addAction);
             if (addActions != null) AddedActions.AddRange(addActions);
 
+            AddedPotentialActions = new List<ActionInfo>();
+            if (addPotentialAction != null) AddedActions.Add(addPotentialAction);
+
             ForbiddenSlots = new List<UpgradeType>();
             if (forbidSlot != UpgradeType.None) ForbiddenSlots.Add(forbidSlot);
             if (forbidSlots != null) ForbiddenSlots.AddRange(forbidSlots);
@@ -135,6 +143,8 @@ namespace Upgrade
 
             SubType = subType;
             RemoteType = remoteType;
+
+            LegalityInfo = legalityInfo ?? new List<Legality> { Legality.StandardLegal, Legality.ExtendedLegal };
         }
 
         public bool HasType(UpgradeType upgradeType)
@@ -217,6 +227,14 @@ namespace Upgrade
                 }
             }
 
+            if (AddedPotentialActions.Count > 0)
+            {
+                foreach (ActionInfo actionInfo in AddedPotentialActions)
+                {
+                    HostShip.ShipInfo.PotentialActionIcons.AddActions(new ActionInfo(actionInfo.ActionType, actionInfo.Color, HostUpgrade));
+                }
+            }
+
             foreach (LinkedActionInfo linkedActionInfo in AddActionLinks)
             {
                 GenericAction linkedAction = (GenericAction)Activator.CreateInstance(linkedActionInfo.ActionLinkedType);
@@ -279,6 +297,19 @@ namespace Upgrade
                     HostShip.ShipInfo.ActionIcons.Actions.Remove(addedAction);
 
                     if (HostShip.State != null) HostUpgrade.HostShip.ActionBar.RemoveGrantedAction(actionInfo.ActionType, HostUpgrade);
+                }
+            }
+
+            if (AddedPotentialActions.Count > 0)
+            {
+                foreach (ActionInfo actionInfo in AddedPotentialActions)
+                {
+                    ActionInfo addedAction = HostShip.ShipInfo.PotentialActionIcons.Actions.First(a =>
+                        a.ActionType == actionInfo.ActionType
+                        && a.Color == actionInfo.Color
+                        && a.Source == HostUpgrade
+                    );
+                    HostShip.ShipInfo.PotentialActionIcons.Actions.Remove(addedAction);
                 }
             }
 

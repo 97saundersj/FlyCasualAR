@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using UnityEngine;
 using Ship;
 using Editions;
 using System.Linq;
@@ -23,56 +22,42 @@ namespace RulesList
             if (!RuleIsInitialized)
             {
                 GenericShip.OnTryPerformAttackGlobal += CanPerformAttack;
+                GenericShip.OnMovementFinishGlobal += CheckBumps;
                 RuleIsInitialized = true;
             }
-            GenericShip.OnMovementFinishGlobal += CheckBumps;
         }
 
         public void CheckBumps(GenericShip ship)
         {
-            if (Editions.Edition.Current.RuleSet.GetType() == typeof(Editions.RuleSets.RuleSet20))
+            if (Selection.ThisShip.ShipsBumpedOnTheEnd.Any(n => Tools.IsSameTeam(Selection.ThisShip, n)))
             {
-                if (Selection.ThisShip.IsBumped
-                    && !Selection.ThisShip.CanPerformActionsWhenBumped
-                    && Selection.ThisShip.AssignedManeuver.Speed != 0
-                )
-                {
-                    Messages.ShowErrorToHuman($"{Selection.ThisShip.PilotInfo.PilotName} collided into another ship. Skipping their action subphase.");
-                    Selection.ThisShip.IsSkipsActionSubPhase = true;
-                }
+                Messages.ShowErrorToHuman($"{Selection.ThisShip.PilotInfo.PilotName} collided into another ship. Skipping their action subphase.");
+                Selection.ThisShip.IsSkipsActionSubPhase = true;
+
+                Triggers.RegisterTrigger(
+                    new Trigger()
+                    {
+                        Name = "Collision: Roll for damage",
+                        TriggerType = TriggerTypes.OnMovementFinish,
+                        TriggerOwner = Selection.ThisShip.Owner.PlayerNo,
+                        EventHandler = StartRollForDamage
+                    }
+                );
             }
-            else if (Editions.Edition.Current.RuleSet.GetType() == typeof(Editions.RuleSets.RuleSet25))
+            else if (Selection.ThisShip.ShipsBumpedOnTheEnd.Any(n => Tools.IsAnotherTeam(Selection.ThisShip, n)))
             {
-                if (Selection.ThisShip.ShipsBumpedOnTheEnd.Any(n => Tools.IsSameTeam(Selection.ThisShip, n)))
-                {
-                    Messages.ShowErrorToHuman($"{Selection.ThisShip.PilotInfo.PilotName} collided into another ship. Skipping their action subphase.");
-                    Selection.ThisShip.IsSkipsActionSubPhase = true;
+                Messages.ShowErrorToHuman($"{Selection.ThisShip.PilotInfo.PilotName} collided into another ship. Skipping their action subphase.");
+                Selection.ThisShip.IsSkipsActionSubPhase = true;
 
-                    Triggers.RegisterTrigger(
-                        new Trigger()
-                        {
-                            Name = "Collision: Roll for damage",
-                            TriggerType = TriggerTypes.OnMovementFinish,
-                            TriggerOwner = Selection.ThisShip.Owner.PlayerNo,
-                            EventHandler = StartRollForDamage
-                        }
-                    );
-                }
-                else if (Selection.ThisShip.ShipsBumpedOnTheEnd.Any(n => Tools.IsAnotherTeam(Selection.ThisShip, n)))
-                {
-                    Messages.ShowErrorToHuman($"{Selection.ThisShip.PilotInfo.PilotName} collided into another ship. Skipping their action subphase.");
-                    Selection.ThisShip.IsSkipsActionSubPhase = true;
-
-                    Triggers.RegisterTrigger(
-                        new Trigger()
-                        {
-                            Name = "Collision: Perform Red Action",
-                            TriggerType = TriggerTypes.OnMovementFinish,
-                            TriggerOwner = Selection.ThisShip.Owner.PlayerNo,
-                            EventHandler = AskPerformRedAction
-                        }
-                    );
-                }
+                Triggers.RegisterTrigger(
+                    new Trigger()
+                    {
+                        Name = "Collision: Perform Red Action",
+                        TriggerType = TriggerTypes.OnMovementFinish,
+                        TriggerOwner = Selection.ThisShip.Owner.PlayerNo,
+                        EventHandler = AskPerformRedAction
+                    }
+                );
             }
         }
 
@@ -186,10 +171,11 @@ namespace SubPhases
 
             if (CurrentDiceRoll.DiceList[0].Side == DieSide.Success || CurrentDiceRoll.DiceList[0].Side == DieSide.Crit)
             {
-                Messages.ShowErrorToHuman($"{TheShip.PilotInfo.PilotName} is dealt a damage card");
-                DamageDecks.GetDamageDeck(TheShip.Owner.PlayerNo).DrawDamageCard(
-                    false,
-                    DealDrawnCard,
+                Messages.ShowErrorToHuman($"{TheShip.PilotInfo.PilotName} is dealt damage");
+                TheShip.Damage.TryResolveDamage
+                (
+                    1,
+                    0,
                     new DamageSourceEventArgs
                     {
                         DamageType = DamageTypes.Rules,
@@ -203,11 +189,6 @@ namespace SubPhases
                 Messages.ShowInfoToHuman("No damage");
                 CallBack();
             }
-        }
-
-        private void DealDrawnCard(EventArgs e, Action callback)
-        {
-            TheShip.Damage.DealDrawnCard(callback);
         }
     }
 }

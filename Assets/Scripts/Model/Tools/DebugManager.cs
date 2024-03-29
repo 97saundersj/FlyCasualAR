@@ -5,7 +5,7 @@ using UnityEngine;
 
 public static class DebugManager
 {
-    public static bool ReleaseVersion = false;
+    public static bool ReleaseVersion = true;
 
     public static bool DebugNetworkSingleDevice;
 
@@ -19,7 +19,7 @@ public static class DebugManager
 
     public static bool DebugAllDamageIsCrits;
 
-    public static bool DebugNoSquadPointsLimit;
+    public static bool DebugNoSquadBuilderLimits;
     public static bool NoDefaultAiSquads;
 
     public static bool DebugNoCombat;

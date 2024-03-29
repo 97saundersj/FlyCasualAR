@@ -169,19 +169,7 @@ namespace SquadBuilderNS
 
         private int GetShipCost(SquadListShip shipHolder)
         {
-            int result = 0;
-
-            result += shipHolder.Instance.PilotInfo.Cost;
-
-            foreach (var upgradeSlot in shipHolder.Instance.UpgradeBar.GetUpgradeSlots())
-            {
-                if (!upgradeSlot.IsEmpty)
-                {
-                    result += ReduceUpgradeCost(upgradeSlot.InstalledUpgrade.UpgradeInfo.Cost, upgradeSlot.CostDecrease);
-                }
-            }
-
-            return result;
+            return shipHolder.Instance.PilotInfo.Cost;
         }
 
         private int ReduceUpgradeCost(int cost, int decrease)
@@ -200,11 +188,6 @@ namespace SquadBuilderNS
                 {
                     GenericUpgrade upgrade = (GenericUpgrade)Activator.CreateInstance(upgradeType);
                     Edition.Current.AdaptUpgradeToRules(upgrade);
-                    if (upgrade is IVariableCost && Edition.Current is SecondEdition)
-                    {
-                        (upgrade as IVariableCost).UpdateCost(ship);
-                        if (upgrade.UpgradeInfo.Cost == int.MaxValue) upgrade.IsHidden = true;
-                    }
 
                     squadBuilderShip.TryInstallUpgade(upgrade);
                 }

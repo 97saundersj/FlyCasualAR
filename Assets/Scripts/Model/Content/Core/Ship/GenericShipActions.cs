@@ -27,6 +27,7 @@ namespace Ship
 
         // EVENTS
         public event EventHandlerShip OnMovementActivationStart;
+        public static event EventHandlerShip OnMovementActivationStartGlobal;
         public event EventHandlerShip OnMovementActivationFinish;
 
         public event EventHandlerShip OnGenerateActions;
@@ -86,6 +87,7 @@ namespace Ship
         public event EventHandler OnSlam;
 
         public event EventHandlerActionColor OnCheckActionComplexity;
+        public event EventHandlerActionColor OnCheckActionColor;
 
         public event EventHandlerArcFacingList OnGetAvailableArcFacings;
 
@@ -177,6 +179,8 @@ namespace Ship
         public void CallMovementActivationStart(Action callBack)
         {
             if (OnMovementActivationStart != null) OnMovementActivationStart(this);
+
+            if (OnMovementActivationStartGlobal != null) OnMovementActivationStartGlobal(this);
 
             Triggers.ResolveTriggers(TriggerTypes.OnMovementActivationStart, callBack);
         }
@@ -713,6 +717,14 @@ namespace Ship
         public ActionColor CallOnCheckActionComplexity(GenericAction action, ref ActionColor color)
         {
             OnCheckActionComplexity?.Invoke(action, ref color);
+            return color;
+        }
+
+        // TODO: Added by sampson-matt, need to check difference against my CallOnCheckActionComplexity
+
+        public ActionColor CallOnCheckActionColor(GenericAction action, ref ActionColor color)
+        {
+            OnCheckActionColor?.Invoke(action, ref color);
             return color;
         }
 

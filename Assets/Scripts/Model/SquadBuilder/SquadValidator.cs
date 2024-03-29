@@ -1,4 +1,5 @@
-﻿using Editions;
+﻿using Content;
+using Editions;
 using Players;
 using Ship;
 using System.Collections.Generic;
@@ -15,20 +16,25 @@ namespace SquadBuilderNS
             if (!ValidateMaxSameShipsCount(squad)) return false;
             if (!ValidateLimitedCards(squad)) return false;
             if (!ValidateSquadCost(squad)) return false;
+            if (!ValidateLoadoutCost(squad)) return false;
             if (!ValidateSolitaryCards(squad)) return false;
             if (!ValidateStandardizedCards(squad)) return false;
             if (!ValidateUpgradePostChecks(squad)) return false;
             if (!ValidateSpecialSlotsRequirements(squad)) return false;
+            if (!ValidateLegality(squad)) return false;
 
             return true;
         }
 
         private bool ValidateShipsCount(SquadList squad)
         {
-            if (squad.Ships.Count < Edition.Current.MinShipsCount)
+            if (!DebugManager.DebugNoSquadBuilderLimits)
             {
-                Messages.ShowError($"The minimum number of pilots required is: {Edition.Current.MinShipsCount}");
-                return false;
+                if (squad.Ships.Count < Edition.Current.MinShipsCount)
+                {
+                    Messages.ShowError($"The minimum number of pilots required is: {Edition.Current.MinShipsCount}");
+                    return false;
+                }
             }
 
             if (squad.Ships.Count > 10)
@@ -100,12 +106,29 @@ namespace SquadBuilderNS
 
         private bool ValidateSquadCost(SquadList squad)
         {
-            if (!DebugManager.DebugNoSquadPointsLimit)
+            if (!DebugManager.DebugNoSquadBuilderLimits)
             {
                 if (squad.Points > Edition.Current.MaxPoints)
                 {
                     Messages.ShowError("The cost of your squadron cannot be more than " + Edition.Current.MaxPoints);
                     return false;
+                }
+            }
+
+            return true;
+        }
+
+        private bool ValidateLoadoutCost(SquadList squad)
+        {
+            if (!DebugManager.DebugNoSquadBuilderLimits)
+            {
+                foreach (SquadListShip ship in squad.Ships)
+                {
+                    if (ship.Instance.UpgradeBar.GetTotalUsedLoadoutCost() > (ship.Instance.PilotInfo as PilotCardInfo25).LoadoutValue)
+                    {
+                        Messages.ShowError($"The cost of loadout of {ship.Instance.PilotInfo.PilotName} cannot be more than {(ship.Instance.PilotInfo as PilotCardInfo25).LoadoutValue}");
+                        return false;
+                    }
                 }
             }
 
@@ -170,7 +193,9 @@ namespace SquadBuilderNS
                 {
                     if (shipConfig.Instance.ShipInfo.ShipName == standardizedPair.Key)
                     {
-                        if (!shipConfig.Instance.UpgradeBar.HasUpgradeInstalled(standardizedPair.Value.GetType()))
+                        if (shipConfig.Instance.UpgradeBar.HasUpgradeSlot(standardizedPair.Value.Slot.Type)
+                            && !shipConfig.Instance.UpgradeBar.HasUpgradeInstalled(standardizedPair.Value.GetType())
+                            && (shipConfig.Instance.PilotInfo as PilotCardInfo25).AffectedByStandardized)
                         {
                             Messages.ShowError($"All {shipConfig.Instance.ShipInfo.ShipName} ships must have the Standardized upgrade {standardizedPair.Value.UpgradeInfo.Name} installed");
                             return false;
@@ -233,6 +258,29 @@ namespace SquadBuilderNS
             }
 
             return result;
+        }
+
+        private bool ValidateLegality(SquadList squad)
+        {
+            foreach (SquadListShip ship in squad.Ships)
+            {
+                if (!XWingFormats.IsLegalForFormat(ship.Instance))
+                {
+                    Messages.ShowError($"{ship.Instance.PilotInfo.PilotName} is not legal for format {Options.Format}!");
+                    return false;
+                }
+
+                foreach (GenericUpgrade upgrade in ship.Instance.UpgradeBar.GetUpgradesAll())
+                {
+                    if (!XWingFormats.IsLegalForFormat(upgrade))
+                    {
+                        Messages.ShowError($"{upgrade.UpgradeInfo.Name} is not legal for format {Options.Format}!");
+                        return false;
+                    }
+                }
+            }
+
+            return true;
         }
     }
 }

@@ -140,6 +140,7 @@ namespace Mirror.Experimental
                 SendToServer();
             }
         }
+        
 
         internal void FixedUpdate()
         {
@@ -185,8 +186,9 @@ namespace Mirror.Experimental
             useGravity = target.useGravity;
             drag = target.drag;
             angularDrag = target.angularDrag;
+            
         }
-
+        
         /// <summary>
         /// Uses Command to send values to server
         /// </summary>
@@ -342,9 +344,7 @@ namespace Mirror.Experimental
             this.angularDrag = angularDrag;
             target.angularDrag = angularDrag;
         }
-
         */
-
         /// <summary>
         /// holds previously synced values
         /// </summary>
@@ -361,5 +361,6 @@ namespace Mirror.Experimental
             public float drag;
             public float angularDrag;
         }
+        
     }
 }

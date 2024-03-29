@@ -107,27 +107,29 @@ namespace SquadBuilderNS
             pilotJson.AddField("ship", shipHolder.Instance.ShipTypeCanonical);
 
             Dictionary<string, JSONObject> upgradesDict = new Dictionary<string, JSONObject>();
-            foreach (var installedUpgrade in shipHolder.Instance.UpgradeBar.GetUpgradesAll())
+            if (!(shipHolder.Instance.PilotInfo as PilotCardInfo25).IsStandardLayout)
             {
-                string slotName = Edition.Current.UpgradeTypeToXws(installedUpgrade.UpgradeInfo.UpgradeTypes[0]);
-                if (!upgradesDict.ContainsKey(slotName))
+                foreach (var installedUpgrade in shipHolder.Instance.UpgradeBar.GetUpgradesAll())
                 {
-                    JSONObject upgrade = new JSONObject();
-                    upgrade.Add(installedUpgrade.NameCanonical);
-                    upgradesDict.Add(slotName, upgrade);
-                }
-                else
-                {
-                    upgradesDict[slotName].Add(installedUpgrade.NameCanonical);
+                    string slotName = Edition.Current.UpgradeTypeToXws(installedUpgrade.UpgradeInfo.UpgradeTypes[0]);
+                    if (!upgradesDict.ContainsKey(slotName))
+                    {
+                        JSONObject upgrade = new JSONObject();
+                        upgrade.Add(installedUpgrade.NameCanonical);
+                        upgradesDict.Add(slotName, upgrade);
+                    }
+                    else
+                    {
+                        upgradesDict[slotName].Add(installedUpgrade.NameCanonical);
+                    }
                 }
             }
             JSONObject upgradesDictJson = new JSONObject(upgradesDict);
-
             pilotJson.AddField("upgrades", upgradesDictJson);
 
             JSONObject vendorJson = new JSONObject();
             JSONObject skinJson = new JSONObject();
-            skinJson.AddField("skin", shipHolder.Instance.ModelInfo.SkinName);
+            skinJson.AddField("skin", (shipHolder.Instance.PilotInfo as PilotCardInfo25).SkinName);
             vendorJson.AddField("Sandrem.FlyCasual", skinJson);
 
             pilotJson.AddField("vendor", vendorJson);
@@ -260,6 +262,19 @@ namespace SquadBuilderNS
                             }
                         }
 
+                        if ((newShipInstance.PilotInfo as PilotCardInfo25).IsStandardLayout)
+                        {
+                            foreach (Type upgradeType in newShipInstance.MustHaveUpgrades)
+                            {
+                                bool upgradeInstalledSucessfully = newShip.InstallUpgrade(upgradeType.ToString());
+                                if (!upgradeInstalledSucessfully)
+                                {
+                                    Messages.ShowError("Cannot install upgrade: " + upgradeType.ToString());
+                                }
+
+                            }
+                        }
+
                         if (pilotJson.HasField("vendor"))
                         {
                             JSONObject vendorData = pilotJson["vendor"];
@@ -268,7 +283,7 @@ namespace SquadBuilderNS
                                 JSONObject myVendorData = vendorData["Sandrem.FlyCasual"];
                                 if (myVendorData.HasField("skin"))
                                 {
-                                    newShip.Instance.ModelInfo.SkinName = myVendorData["skin"].str;
+                                    (newShip.Instance.PilotInfo as PilotCardInfo25).SkinName = myVendorData["skin"].str;
                                 }
                             }
                         }

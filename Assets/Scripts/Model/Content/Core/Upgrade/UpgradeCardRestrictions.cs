@@ -4,6 +4,7 @@ using System.Linq;
 using Actions;
 using Arcs;
 using System;
+using Content;
 
 namespace Upgrade
 {
@@ -62,21 +63,6 @@ namespace Upgrade
         }
     }
 
-    public class UpgradePresentRestriction : UpgradeCardRestriction
-    {
-        public UpgradeType UpgradeSlot { get; private set; }
-
-        public UpgradePresentRestriction(UpgradeType upgradeSlot)
-        {
-            UpgradeSlot = upgradeSlot;
-        }
-
-        public override bool IsAllowedForShip(GenericShip ship)
-        {
-            return ship.UpgradeBar.GetInstalledUpgrade(UpgradeSlot) != null;
-        }
-    }
-
     public class ActionBarRestriction : UpgradeCardRestriction
     {
         public Type ActionType { get; private set; }
@@ -90,9 +76,21 @@ namespace Upgrade
 
         public override bool IsAllowedForShip(GenericShip ship)
         {
-            return ship.ShipInfo.ActionIcons.Actions.Any(a => 
+            return HasRealAction(ship) || HasPotentialAction(ship);
+        }
+
+        private bool HasRealAction(GenericShip ship)
+        {
+            return ship.ShipInfo.ActionIcons.Actions.Any(a =>
                 a.ActionType == ActionType
                 && ((a.Color == ActionColor) || ActionColor == null)
+            );
+        }
+
+        private bool HasPotentialAction(GenericShip ship)
+        {
+            return ship.ShipInfo.PotentialActionIcons.Actions.Any(
+                a => a.ActionType == ActionType && ((a.Color == ActionColor) || ActionColor == null)
             );
         }
     }
@@ -127,18 +125,18 @@ namespace Upgrade
         }
     }
 
-    public class ForceAlignmentRestriction : UpgradeCardRestriction
+    public class TagRestriction : UpgradeCardRestriction
     {
-        public ForceAlignment Alignment { get; private set; }
+        public Tags Tag { get; private set; }
 
-        public ForceAlignmentRestriction(ForceAlignment alignment)
+        public TagRestriction(Tags tag)
         {
-            Alignment = alignment;
+            Tag = tag;
         }
 
         public override bool IsAllowedForShip(GenericShip ship)
         {
-            return ship.CanEquipForceAlignedCard(Alignment);
+            return (ship.PilotInfo as PilotCardInfo25).Tags.Contains(Tag);
         }
     }
 
