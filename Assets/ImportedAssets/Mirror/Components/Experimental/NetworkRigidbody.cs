@@ -128,7 +128,7 @@ namespace Mirror.Experimental
         }
         #endregion
 
-
+        /*
         internal void Update()
         {
             if (isServer)
@@ -342,6 +342,8 @@ namespace Mirror.Experimental
             this.angularDrag = angularDrag;
             target.angularDrag = angularDrag;
         }
+
+        */
 
         /// <summary>
         /// holds previously synced values
