@@ -108,25 +108,34 @@ namespace BoardTools
             GameObject.Find("SceneHolder/ARScene/TableClassic/Playmat").GetComponent<Renderer>().material.mainTexture = playmatTexture;
 
             // Enable AR scripts
-            //GameObject.Find("ARManager").transform.Find("AR Session").gameObject.SetActive(true);
-            //GameObject.Find("CameraHolder").transform.Find("ARSessionOrigin").gameObject.SetActive(true);
-            //GameObject.Find("CameraHolder/ARSessionOrigin").transform.Find("AR Camera").gameObject.SetActive(true);
-            //var objects = GameObject.Find("ARManager").GetComponentInChildren<GameObject>(true);
+            /*
             GameObject arManager = GameObject.Find("ARManager");
             foreach (Transform child in arManager.transform)
             {
                 child.gameObject.SetActive(true);
             }
+            */
 
             // Disable Elements
             GameObject.Find("CameraHolder/Main Camera/").SetActive(false);
-            GameObject.Find("SceneHolder").SetActive(false);
+            //GameObject.Find("SceneHolder").SetActive(false);
 
             // Rotate Camera back to default and scale camera to match world
-            Transform arSessionOrigin = GameObject.Find("CameraHolder").transform.Find("ARSessionOrigin");
+            //Transform arSessionOrigin = GameObject.Find("CameraHolder").transform.Find("ARSessionOrigin");
+            //GameObject.Find("AR Session")?.gameObject.SetActive(true);//.transform.Find("Camera Offset");
+            //GameObject.Find("XR Origin (Mobile AR)").gameObject.SetActive(true);
+
+            /*
+            GameObject arSessionOrigin = GameObject.Find("").transform.gameObject;
             arSessionOrigin.gameObject.SetActive(true);
+
+            GameObject arSession = GameObject.Find("AR Session").transform.gameObject;
+            arSession.gameObject.SetActive(true);
+            */
+            //GameObject.Find("XR Origin (Mobile AR)").transform.gameObject.SetActive(true);
+
             //arSessionOrigin.transform.rotation = new Quaternion(0, 0, 0, 0);
-            arSessionOrigin.localScale = new Vector3(AR_WORLD_SCALE, AR_WORLD_SCALE, AR_WORLD_SCALE);
+            //arSessionOrigin.localScale = new Vector3(AR_WORLD_SCALE, AR_WORLD_SCALE, AR_WORLD_SCALE);
         }
 
         private static void LoadSceneFromResources(string sceneName)

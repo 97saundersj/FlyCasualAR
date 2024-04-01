@@ -3,16 +3,22 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.XR.ARFoundation;
+using Unity.XR.CoreUtils;
 
 namespace AR
 {
     public class ARManager : MonoBehaviour
     {
         public bool placementConfirmed = false;
-
-        public GameObject ARCursor;
         public GameObject objectToMove;
         public ARRaycastManager raycastManager;
+        private GameObject ARCursorPrefab;
+        private GameObject ARCursorObject;
+
+        void Start()
+        {
+            ARCursorPrefab = ARCursorPrefab = Resources.Load<GameObject>("Prefabs/XR/ARCursor");
+        }
 
         void Update()
         {
@@ -20,16 +26,13 @@ namespace AR
             {
                 UpdateCursor();
 
-                if (Input.touchCount > 0 && !EventSystem.current.IsPointerOverGameObject(Input.GetTouch(0).fingerId) && Input.GetTouch(0).phase == TouchPhase.Began)
+                if (Input.GetMouseButtonDown(0) || (Input.touchCount > 0 && !EventSystem.current.IsPointerOverGameObject(Input.GetTouch(0).fingerId) && Input.GetTouch(0).phase == TouchPhase.Began))
                 {
                     PlaceObject();
                 }
 
-                var DecisionPanel = GameObject.Find("UI/DecisionPanelHolder").transform.Find("DecisionsPanel");
-                if (DecisionPanel)
-                {
-                    DecisionPanel.gameObject.SetActive(false);
-                }
+                var decisionPanel = GameObject.Find("UI/DecisionPanelHolder")?.transform.Find("DecisionsPanel");
+                decisionPanel?.gameObject.SetActive(false);
             }
         }
 
@@ -37,17 +40,20 @@ namespace AR
         {
             Vector2 screenPosition = Camera.main.ViewportToScreenPoint(new Vector2(0.5f, 0.5f));
             List<ARRaycastHit> hits = new List<ARRaycastHit>();
-            raycastManager.Raycast(screenPosition, hits, UnityEngine.XR.ARSubsystems.TrackableType.Planes);
+            raycastManager.Raycast(screenPosition, hits, UnityEngine.XR.ARSubsystems.TrackableType.AllTypes);
+
 
             if (hits.Count > 0)
             {
-                ARCursor.SetActive(true);
-                ARCursor.transform.position = hits[0].pose.position;
-                ARCursor.transform.rotation = hits[0].pose.rotation;
-            }
-            else
-            {
-                ARCursor.SetActive(false);
+                if (ARCursorObject == null)
+                {
+                    ARCursorObject = Instantiate(ARCursorPrefab, hits[0].pose.position, hits[0].pose.rotation, hits[0].trackable.transform.parent);
+                }
+                else
+                {
+                    ARCursorObject.transform.position = hits[0].pose.position;
+                    ARCursorObject.transform.rotation = hits[0].pose.rotation;
+                }
             }
         }
 
@@ -55,10 +61,13 @@ namespace AR
         {
             // Move object
             objectToMove.SetActive(true);
-            GameObject.Find("ARSessionOrigin").GetComponent<ARSessionOrigin>().MakeContentAppearAt(objectToMove.transform, ARCursor.transform.position, ARCursor.transform.rotation);
+            //objectToMove.transform.parent = ARCursorObject.transform.parent;
+            objectToMove.transform.position = ARCursorObject.transform.position;
+            objectToMove.transform.rotation = ARCursorObject.transform.rotation;
+            //GameObject.Find("XR Origin (Mobile AR)").GetComponent<XROrigin>().MakeContentAppearAt(objectToMove.transform, ARCursorObject.transform.position, ARCursorObject.transform.rotation);
 
             //Enable Confirm Button
-            GameObject.Find("UI").transform.Find("ARPanel").gameObject.SetActive(true);
+            GameObject.Find("UI")?.transform.Find("ARPanel")?.gameObject.SetActive(true);
         }
 
         public void SetPlacementConfirmed(bool placementSet)
@@ -66,7 +75,7 @@ namespace AR
             placementConfirmed = placementSet;
             if (placementConfirmed)
             {
-                ARCursor.SetActive(false);
+                ARCursorPrefab.SetActive(false);
             }
         }
     }

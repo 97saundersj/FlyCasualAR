@@ -38,7 +38,7 @@ public static class DebugManager
 
     public static bool ManualCollisionPrediction;
 
-    public static bool AugmentedReality;
+    public static bool AugmentedReality = true;
 
     public static bool DebugAiNavigation; // = true;
 

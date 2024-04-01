@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.XR.ARFoundation;
+using Unity.XR.CoreUtils;
 
 namespace AR
 {
@@ -43,8 +44,8 @@ namespace AR
         void PlaceObject()
         {
             objectToMove.SetActive(true);
-            GameObject.Find("CameraHolder/ARSessionOrigin").GetComponent<ARSessionOrigin>().MakeContentAppearAt(objectToMove.transform, transform.position, transform.rotation);
-
+            //GameObject.Find("CameraHolder/ARSessionOrigin").GetComponent<ARSessionOrigin>().MakeContentAppearAt(objectToMove.transform, transform.position, transform.rotation);
+            GameObject.Find("XR Origin").GetComponent<XROrigin>().MakeContentAppearAt(objectToMove.transform, transform.position, transform.rotation);
             GameObject.Find("UI").transform.Find("ARPanel").gameObject.SetActive(true);
         }
     }
