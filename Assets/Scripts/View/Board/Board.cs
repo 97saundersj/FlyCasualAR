@@ -118,7 +118,8 @@ namespace BoardTools
 
             // Disable Elements
             GameObject.Find("CameraHolder/Main Camera/").SetActive(false);
-            //GameObject.Find("SceneHolder").SetActive(false);
+            
+            //GameObject.Find("SceneHolder")sceneHolder.layer = LayerMask.NameToLayer("XRIgnore");
 
             // Rotate Camera back to default and scale camera to match world
             //Transform arSessionOrigin = GameObject.Find("CameraHolder").transform.Find("ARSessionOrigin");
@@ -128,14 +129,15 @@ namespace BoardTools
             /*
             GameObject arSessionOrigin = GameObject.Find("").transform.gameObject;
             arSessionOrigin.gameObject.SetActive(true);
-
-            GameObject arSession = GameObject.Find("AR Session").transform.gameObject;
-            arSession.gameObject.SetActive(true);
             */
+            GameObject.Find("AR Session").transform.gameObject.SetActive(true);
+            
+            GameObject xrSessionOrigin = GameObject.Find("XR Origin (Mobile AR)").transform.gameObject;
+            
             //GameObject.Find("XR Origin (Mobile AR)").transform.gameObject.SetActive(true);
 
             //arSessionOrigin.transform.rotation = new Quaternion(0, 0, 0, 0);
-            //arSessionOrigin.localScale = new Vector3(AR_WORLD_SCALE, AR_WORLD_SCALE, AR_WORLD_SCALE);
+            xrSessionOrigin.transform.localScale = new Vector3(AR_WORLD_SCALE, AR_WORLD_SCALE, AR_WORLD_SCALE);
         }
 
         private static void LoadSceneFromResources(string sceneName)
