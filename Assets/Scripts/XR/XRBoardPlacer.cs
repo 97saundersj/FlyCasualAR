@@ -7,7 +7,7 @@ using Unity.XR.CoreUtils;
 
 namespace AR
 {
-    public class ARManager : MonoBehaviour
+    public class XRBoardPlacer : MonoBehaviour
     {
         public bool placementConfirmed = false;
         public GameObject objectToMove;

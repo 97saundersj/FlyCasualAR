@@ -205,7 +205,7 @@ public class UI : MonoBehaviour {
     public void CompleteARPlacement()
     {
         GameObject.Find("UI/ARPanel").SetActive(false);
-        GameObject.Find("AR Session").GetComponent<ARManager>().SetPlacementConfirmed(true);
+        GameObject.Find("AR Session").GetComponent<XRBoardPlacer>().SetPlacementConfirmed(true);
 
         GameObject.Find("SceneHolder").transform.Find("Board").Find("ObstaclesZone").Find("ObstaclesZoneHighlight").gameObject.SetActive(true);
         GameObject.Find("UI/DecisionPanelHolder").transform.Find("DecisionsPanel").gameObject.SetActive(true);
