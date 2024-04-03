@@ -39,7 +39,7 @@ TextureImporter:
       213: 4205210179053398382
     second: Fuse_11
   externalObjects: {}
-  serializedVersion: 11
+  serializedVersion: 12
   mipmaps:
     mipMapMode: 0
     enableMipMap: 0
@@ -99,6 +99,7 @@ TextureImporter:
   textureFormatSet: 0
   ignorePngGamma: 0
   applyGammaDecoding: 1
+  cookieLightType: 1
   platformSettings:
   - serializedVersion: 3
     buildTarget: DefaultTexturePlatform
@@ -114,6 +115,30 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 1
   - serializedVersion: 3
     buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 1
+  - serializedVersion: 3
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 1
+  - serializedVersion: 3
+    buildTarget: Server
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
@@ -390,18 +415,18 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
+      Fuse_0: 1889537702765113337
       Fuse_1: 4747193356906459084
-      Fuse_3: -6114884525526456438
-      Fuse_6: 4198469695835432845
-      Fuse_4: -7853626966578128536
-      Fuse_2: 5057281441836215790
-      Fuse_7: 4809740195852210763
       Fuse_10: -6389766049319754624
+      Fuse_11: 4205210179053398382
+      Fuse_2: 5057281441836215790
+      Fuse_3: -6114884525526456438
+      Fuse_4: -7853626966578128536
+      Fuse_5: 3486182598056391985
+      Fuse_6: 4198469695835432845
+      Fuse_7: 4809740195852210763
       Fuse_8: -8811193373125029703
       Fuse_9: -3582805906943096371
-      Fuse_11: 4205210179053398382
-      Fuse_0: 1889537702765113337
-      Fuse_5: 3486182598056391985
   spritePackingTag: 
   pSDRemoveMatte: 0
   pSDShowRemoveMatteOption: 0

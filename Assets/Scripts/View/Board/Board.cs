@@ -5,6 +5,7 @@ using Arcs;
 using Players;
 using Ship;
 using UnityEngine;
+using UnityEngine.XR.ARFoundation;
 
 namespace BoardTools
 {
@@ -23,6 +24,8 @@ namespace BoardTools
         public static GameObject StartingZone4;
         public static GameObject StartingZone4a;
         public static GameObject StartingZone5;
+
+        public static readonly float AR_WORLD_SCALE = 15f;
 
         public static readonly float SIZE_ANY = 91.44f;
         public static readonly float SIZE_X = 91.44f;
@@ -58,6 +61,10 @@ namespace BoardTools
             if (Options.Playmat.StartsWith("3DScene"))
             {
                 SetScene3D(Options.Playmat);
+            } 
+            else if (DebugManager.AugmentedReality)
+            {
+                SetSceneAR();
             }
             else
             {
@@ -85,6 +92,34 @@ namespace BoardTools
             GameObject.Find("SceneHolder/Board/").transform.Find("CombatDiceHolder").transform.position += new Vector3(0, 100, 0);
             GameObject.Find("SceneHolder/Board/").transform.Find("CheckDiceHolder").transform.position += new Vector3(0, 100, 0);
             GameObject.Find("SceneHolder/Board/").transform.Find("RulersHolder").transform.position += new Vector3(0, 100, 0);
+        }
+
+        private static void SetSceneAR()
+        {
+            // Can't use Cinematic Camera with AR
+            DebugManager.NoCinematicCamera = true;
+
+            // Enable Portrait mode
+            Screen.autorotateToPortrait = true;
+
+            LoadSceneFromResources("ARScene");
+
+            Texture playmatTexture = (Texture)Resources.Load("Playmats/Playmat" + Options.Playmat + "Texture", typeof(Texture));
+            GameObject.Find("SceneHolder/ARScene/TableClassic/Playmat").GetComponent<Renderer>().material.mainTexture = playmatTexture;
+
+            // Disable Normal camera since we're using the XR camera
+            GameObject.Find("CameraHolder/Main Camera/").SetActive(false);
+            
+            // Enable XR objects
+            GameObject xrObject = GameObject.Find("XR");
+            foreach (Transform child in xrObject.transform)
+            {
+                child.gameObject.SetActive(true);
+            }
+            
+            // Set XR scale
+            GameObject xrSessionOrigin = GameObject.Find("XR/XR Origin (Mobile AR)").transform.gameObject;
+            xrSessionOrigin.transform.localScale = new Vector3(AR_WORLD_SCALE, AR_WORLD_SCALE, AR_WORLD_SCALE);
         }
 
         private static void LoadSceneFromResources(string sceneName)
