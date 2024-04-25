@@ -73,10 +73,14 @@ public static class Tooltips {
         Sprite sprite = Sprite.Create(newTexture, new Rect(0, 0, newTexture.width, newTexture.height), Vector2.zero, 100, 0, SpriteMeshType.Tight, Vector4.zero);
         string panelName = GetNameOfImagePanelBySize(sprite);
         ImagePanel = TooltipsPanel.Find(panelName);
-        ImagePanel.GetComponent<Image>().sprite = sprite;
-        PrepareImagePanel();
-        SetSpriteScaleForWindow();
-        TooltipImageReady = true;
+        if (ImagePanel != null)
+        {
+            ImagePanel.GetComponent<Image>().sprite = sprite;
+            PrepareImagePanel();
+            SetSpriteScaleForWindow();
+            TooltipImageReady = true;
+        }
+        
     }
 
     private static void PrepareImagePanel()
