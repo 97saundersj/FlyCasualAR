@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using Ship;
+using UnityEngine.XR.Interaction.Toolkit.Interactors;
 
 public static class Selection {
 
@@ -12,6 +13,8 @@ public static class Selection {
     public static GenericShip ActiveShip;
     public static GenericShip HoveredShip;
     public static List<GenericShip> MultiSelectedShips { get; private set; }
+    
+    public static XRRayInteractor rayInteractor;
 
     public static void Initialize()
     {
@@ -20,13 +23,33 @@ public static class Selection {
         ActiveShip = null;
         HoveredShip = null;
         MultiSelectedShips = new List<GenericShip>();
+
+        // Find the GameObject with the XRRayInteractor component
+        GameObject rayInteractorObject = GameObject.Find("Ray Interactor");
+        if (rayInteractorObject != null)
+        {
+            // Get the XRRayInteractor component
+            rayInteractor = rayInteractorObject.GetComponent<XRRayInteractor>();
+
+            if (rayInteractor == null)
+            {
+                Debug.LogError("XRRayInteractor component not found on the specified GameObject.");
+            }
+        }
+        else
+        {
+            Debug.LogError("GameObject with the specified name not found.");
+        }
     }
 
     //TODO: BUG - enemy ship can be selected
     public static void UpdateSelection()
     {
-        if (!EventSystem.current.IsPointerOverGameObject() && 
-            (Input.touchCount == 0 || !EventSystem.current.IsPointerOverGameObject(Input.GetTouch(0).fingerId)))
+        RaycastHit hit = new RaycastHit();
+        if (
+            (rayInteractor != null && rayInteractor.TryGetCurrent3DRaycastHit(out hit) && hit.collider != null) ||
+            (!EventSystem.current.IsPointerOverGameObject() && 
+            (Input.touchCount == 0 || !EventSystem.current.IsPointerOverGameObject(Input.GetTouch(0).fingerId))))
         {
             TryMarkShipByModel();
             int mouseKeyIsPressed = 0;
@@ -40,6 +63,10 @@ public static class Selection {
             else if (CameraScript.InputMouseIsEnabled && Input.GetKeyUp(KeyCode.Mouse1))
             {
                 mouseKeyIsPressed = 2;
+            }
+            if (hit.collider != null)
+            {
+                mouseKeyIsPressed = 1;
             }
 
             if (mouseKeyIsPressed > 0)
