@@ -6,6 +6,22 @@ using UnityEngine.EventSystems;
 using Ship;
 using UnityEngine.XR.Interaction.Toolkit.Interactors;
 
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.XR.ARFoundation;
+using Unity.XR.CoreUtils;
+using UnityEngine.InputSystem;
+
+using System.Collections.Generic;
+using UnityEngine.Assertions;
+using UnityEngine.Scripting.APIUpdating;
+using UnityEngine.XR.Interaction.Toolkit.Interactables;
+using UnityEngine.XR.Interaction.Toolkit.Interactors;
+using UnityEngine.XR.Interaction.Toolkit.Locomotion.Teleportation;
+using UnityEngine.XR.Interaction.Toolkit.Utilities;
+using UnityEngine.XR.Interaction.Toolkit.Utilities.Pooling;
 public static class Selection {
 
     public static GenericShip ThisShip;
@@ -15,7 +31,48 @@ public static class Selection {
     public static List<GenericShip> MultiSelectedShips { get; private set; }
     
     public static XRRayInteractor rayInteractor;
+    public static bool xrSelected;
 
+    static void OnXRClicked(InputAction.CallbackContext context)
+    {
+        xrSelected = true;
+    }
+
+    /// <summary>
+    /// Load the InputActionAsset
+    /// </summary>
+    static void SetupXRSelect()
+    {
+        var inputActionAssetPath = "XRI Default Input Actions";
+        InputActionAsset inputActionAsset = Resources.Load<InputActionAsset>(inputActionAssetPath);
+        if (inputActionAsset == null)
+        {
+            Debug.LogError("Failed to load InputActionAsset from path: " + inputActionAssetPath);
+            return;
+        }
+        // Get the action map and then the action
+        var actionMapName = "XRI Right Interaction";
+        InputActionMap actionMap = inputActionAsset.FindActionMap(actionMapName);
+        if (actionMap == null)
+        {
+            Debug.LogError("Failed to find action map: " + actionMapName);
+            return;
+        }
+        var actionName = "Activate Value";
+        InputAction action = actionMap.FindAction(actionName);
+        if (action == null)
+        {
+            Debug.LogError("Failed to find action: " + actionName);
+            return;
+        }
+         var selectAction = InputActionReference.Create(action);
+        var xrSelectAction = GetInputAction(selectAction);
+        if (xrSelectAction != null)
+        {
+            xrSelectAction.performed += OnXRClicked;
+            //teleportModeAction.canceled += OnStopLocomotion;
+        }
+    }
     public static void Initialize()
     {
         ThisShip = null;
@@ -24,6 +81,7 @@ public static class Selection {
         HoveredShip = null;
         MultiSelectedShips = new List<GenericShip>();
 
+        SetupXRSelect();
         // Find the GameObject with the XRRayInteractor component
         GameObject rayInteractorObject = GameObject.Find("Ray Interactor");
         if (rayInteractorObject != null)
@@ -42,12 +100,19 @@ public static class Selection {
         }
     }
 
+    static InputAction GetInputAction(InputActionReference actionReference)
+        {
+#pragma warning disable IDE0031 // Use null propagation -- Do not use for UnityEngine.Object types
+            return actionReference != null ? actionReference.action : null;
+#pragma warning restore IDE0031
+        }
+
     //TODO: BUG - enemy ship can be selected
     public static void UpdateSelection()
     {
         RaycastHit hit = new RaycastHit();
         if (
-            (rayInteractor != null && rayInteractor.TryGetCurrent3DRaycastHit(out hit) && hit.collider != null) ||
+            (xrSelected && rayInteractor != null && rayInteractor.TryGetCurrent3DRaycastHit(out hit) && hit.collider != null) ||
             (!EventSystem.current.IsPointerOverGameObject() && 
             (Input.touchCount == 0 || !EventSystem.current.IsPointerOverGameObject(Input.GetTouch(0).fingerId))))
         {
@@ -56,7 +121,8 @@ public static class Selection {
             // On touch devices, select on down instead of up event so dragging in ship setup can begin immediately
             // TODO: Could make that only apply during setup rather than for all selections. I don't think this is a big issues though?
             if ((CameraScript.InputMouseIsEnabled && Input.GetKeyUp(KeyCode.Mouse0)) ||
-                (CameraScript.InputTouchIsEnabled && Input.touchCount == 1 && Input.GetTouch(0).phase == TouchPhase.Began))
+                (CameraScript.InputTouchIsEnabled && Input.touchCount == 1 && Input.GetTouch(0).phase == UnityEngine.TouchPhase.Began)
+                || xrSelected)
             {
                 mouseKeyIsPressed = 1;
             }
@@ -73,7 +139,15 @@ public static class Selection {
             {
                 bool isShipHit = false;
                 RaycastHit hitInfo = new RaycastHit();
-                if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hitInfo))
+
+                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+                bool castHit = Physics.Raycast(ray, out hitInfo);
+
+                //XR
+                ray = new Ray(rayInteractor.transform.position, rayInteractor.transform.forward);
+                castHit = Physics.Raycast(ray, out hitInfo);
+
+                if (castHit)
                 {
                     if (hitInfo.transform.tag.StartsWith("ShipId:"))
                     {

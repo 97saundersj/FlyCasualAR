@@ -28,6 +28,7 @@ public class ShipMovementScript : MonoBehaviour {
         UpdateMovement();
         UpdateSubscribedFuncs();
         ClearCollision();
+        Selection.xrSelected = false;
     }
 
     private void UpdateMovement()
