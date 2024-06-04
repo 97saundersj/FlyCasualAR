@@ -8,6 +8,7 @@ using GameModes;
 using GameCommands;
 using System;
 using System.Globalization;
+using UnityEngine.XR.Interaction.Toolkit.Interactors;
 
 namespace SubPhases
 {
@@ -28,12 +29,37 @@ namespace SubPhases
 
         private TouchObjectPlacementHandler touchObjectPlacementHandler = new TouchObjectPlacementHandler();
 
+        public XRRayInteractor rayInteractor;
+
         public override void Start()
         {
             base.Start();
 
             Name = "Setup SubPhase";
             inReposition = false;
+
+            SetupXRIntractor();
+        }
+
+        private void SetupXRIntractor()
+        {
+            // Find the GameObject with the XRRayInteractor component
+            GameObject rayInteractorObject = GameObject.Find("Ray Interactor");
+
+            if (rayInteractorObject != null)
+            {
+                // Get the XRRayInteractor component
+                rayInteractor = rayInteractorObject.GetComponent<XRRayInteractor>();
+
+                if (rayInteractor == null)
+                {
+                    Debug.LogError("XRRayInteractor component not found on the specified GameObject.");
+                }
+            }
+            else
+            {
+                Debug.LogError("GameObject with the specified name not found.");
+            }
         }
 
         public override void Prepare()
@@ -312,6 +338,12 @@ namespace SubPhases
         {
             RaycastHit hit;
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+            //XR
+            if (rayInteractor != null)
+            {
+                ray = new Ray(rayInteractor.transform.position, rayInteractor.transform.forward);
+            }
 
             if (Physics.Raycast(ray, out hit))
             {

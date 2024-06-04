@@ -41,6 +41,9 @@ public static class DirectionsMenu
                 Input.mousePosition
             );
             */
+
+            // For XR
+            DirectionsWindow.transform.localPosition = new Vector3(650, -500, 0);
         }
         else
         {

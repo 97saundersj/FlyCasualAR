@@ -45,6 +45,11 @@ namespace SubPhases
             Name = "Obstacle Setup";
             UpdateHelpInfo();
 
+            SetupXRIntractor();
+        }
+
+        private void SetupXRIntractor()
+        {
             // Find the GameObject with the XRRayInteractor component
             GameObject rayInteractorObject = GameObject.Find("Ray Interactor");
 
@@ -52,7 +57,7 @@ namespace SubPhases
             {
                 // Get the XRRayInteractor component
                 rayInteractor = rayInteractorObject.GetComponent<XRRayInteractor>();
-    
+
                 if (rayInteractor == null)
                 {
                     Debug.LogError("XRRayInteractor component not found on the specified GameObject.");
