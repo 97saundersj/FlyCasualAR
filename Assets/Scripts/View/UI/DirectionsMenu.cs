@@ -35,10 +35,15 @@ public static class DirectionsMenu
             GameObject.Find("UI").transform.Find("ContextMenuPanel").gameObject.SetActive(false);
             CustomizeDirectionsMenu(filter);
             CustomizeForStressed();
+            /*
             DirectionsWindow.transform.localPosition = FixMenuPosition(
                 DirectionsWindow.transform.gameObject,
                 Input.mousePosition
             );
+            */
+
+            // For XR
+            DirectionsWindow.transform.localPosition = new Vector3(650, -500, 0);
         }
         else
         {

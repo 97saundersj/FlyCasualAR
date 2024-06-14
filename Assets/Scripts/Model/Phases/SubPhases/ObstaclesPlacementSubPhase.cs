@@ -11,6 +11,7 @@ using System;
 using GameModes;
 using GameCommands;
 using System.Globalization;
+using UnityEngine.XR.Interaction.Toolkit.Interactors;
 
 namespace SubPhases
 {
@@ -29,6 +30,8 @@ namespace SubPhases
         private static bool IsEnteredPlacementZone;
         public static bool IsLocked;
 
+        public XRRayInteractor rayInteractor;
+
         private TouchObjectPlacementHandler touchObjectPlacementHandler = new TouchObjectPlacementHandler();
 
         public Dictionary<PlayerNo, bool> IsRandomSetupSelected = new Dictionary<PlayerNo, bool>()
@@ -41,6 +44,29 @@ namespace SubPhases
         {
             Name = "Obstacle Setup";
             UpdateHelpInfo();
+
+            SetupXRIntractor();
+        }
+
+        private void SetupXRIntractor()
+        {
+            // Find the GameObject with the XRRayInteractor component
+            GameObject rayInteractorObject = GameObject.Find("Ray Interactor");
+
+            if (rayInteractorObject != null)
+            {
+                // Get the XRRayInteractor component
+                rayInteractor = rayInteractorObject.GetComponent<XRRayInteractor>();
+
+                if (rayInteractor == null)
+                {
+                    Debug.LogError("XRRayInteractor component not found on the specified GameObject.");
+                }
+            }
+            else
+            {
+                Debug.LogError("GameObject with the specified name not found.");
+            }
         }
 
         public override void Initialize()
@@ -182,6 +208,11 @@ namespace SubPhases
             {
                 ChosenObstacle.ObstacleGO.transform.position = new Vector3(hit.point.x, 0f, hit.point.z);
             }
+
+            if (rayInteractor != null && rayInteractor.TryGetCurrent3DRaycastHit(out hit))
+            {
+                ChosenObstacle.ObstacleGO.transform.position = new Vector3(hit.point.x, 0f, hit.point.z);
+            }
         }
 
         private void MoveChosenObstacleTouch() {
@@ -195,6 +226,13 @@ namespace SubPhases
             {
                 ChosenObstacle.ObstacleGO.transform.position = new Vector3(touchObjectPlacementHandler.GetNewPosition().x, 0f, 
                                                                            touchObjectPlacementHandler.GetNewPosition().z);
+            }
+
+            // XR
+            RaycastHit hit;
+            if (rayInteractor != null && rayInteractor.TryGetCurrent3DRaycastHit(out hit))
+            {
+                ChosenObstacle.ObstacleGO.transform.position = new Vector3(hit.point.x, 0f, hit.point.z);
             }
         }
 
@@ -363,30 +401,48 @@ namespace SubPhases
                 // For mouse input, clicking places obstacles (not for touch input though)
                 TryToPlaceObstacle();
             }
+            else 
+            {
+                // XR
+                TryToPlaceObstacle();
+            }
         }
 
         private void TryToSelectObstacle()
         {
-            if (!EventSystem.current.IsPointerOverGameObject() &&
-               (Input.touchCount == 0 || !EventSystem.current.IsPointerOverGameObject(Input.GetTouch(0).fingerId)))
+            RaycastHit hit = new RaycastHit();
+
+            if ((rayInteractor != null && rayInteractor.TryGetCurrent3DRaycastHit(out hit) && hit.collider != null) ||
+                (!EventSystem.current.IsPointerOverGameObject() &&
+               (Input.touchCount == 0 || !EventSystem.current.IsPointerOverGameObject(Input.GetTouch(0).fingerId))))
             {
                 // On touch devices, select on down instead of up event so drag can begin immediately
-                if (Input.GetKeyUp(KeyCode.Mouse0) ||
+                if (true || Input.GetKeyUp(KeyCode.Mouse0) ||
                     (Input.touchCount == 1 && Input.GetTouch(0).phase == TouchPhase.Began))
                 {
                     RaycastHit hitInfo = new RaycastHit();
                     Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
                     bool castHit = Physics.Raycast(ray, out hitInfo);
 
+                    //XR
+                    //castHit = true;
+                    ray = new Ray(rayInteractor.transform.position, rayInteractor.transform.forward);
+                    castHit = Physics.Raycast(ray, out hitInfo);
+                    //hitInfo = hit;
+
                     // If an asteroid wasn't found and we're on touch, see if the user tapped right next to an asteroid
                     // Since the asteroid can be small, they can be hard to touch and this helps with that
-                    if (CameraScript.InputTouchIsEnabled && 
+                    if (//CameraScript.InputTouchIsEnabled && 
                         (!castHit || !hitInfo.transform.tag.StartsWith("Obstacle"))) {
                        
                         castHit = Physics.SphereCast(ray, 0.1f, out hitInfo, 10f);
                     }
 
-
+                    if(hitInfo.collider != null) 
+                    {
+                        Debug.Log("Cast Hit:"+ castHit+ "   tag:" + hitInfo.transform.name);
+                    }
+                    
                     // Select the obstacle found if it's valid
                     if (castHit && hitInfo.transform.tag.StartsWith("Obstacle"))
                     {

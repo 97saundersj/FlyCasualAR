@@ -181,10 +181,12 @@ public class UI : MonoBehaviour {
 
     public void ToggleStatsView()
     {
-        RectTransform statsGoRect = GameObject.Find("UI").transform.Find("StatsHolder").gameObject.GetComponent<RectTransform>();
+        var statsHolderObject = GameObject.Find("UI").transform.Find("StatsHolder").gameObject;
+    
         int modifier = (IsStatBlockVisible) ? -1 : +1;
         IsStatBlockVisible = !IsStatBlockVisible;
-        statsGoRect.localPosition += new Vector3(0, modifier * 525, 0);
+
+        statsHolderObject.SetActive(IsStatBlockVisible);
     }
 
     public static void AddTestLogEntry(string text)

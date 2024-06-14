@@ -84,8 +84,8 @@ namespace SquadBuilderNS
             float panelHeight = (rowsCount) * (grid.cellSize.y + 25) + 25;
 
             GameObject selechShipPanelGO = GameObject.Find("UI/Panels/SelectShipPanel/Panel");
-            selechShipPanelGO.GetComponent<RectTransform>().sizeDelta = new Vector2(panelWidth, panelHeight);
-            MainMenu.ScalePanel(selechShipPanelGO.transform);
+            //selechShipPanelGO.GetComponent<RectTransform>().sizeDelta = new Vector2(panelWidth, panelHeight);
+            //MainMenu.ScalePanel(selechShipPanelGO.transform);
         }
 
         private void ShowAvailableShip(ShipRecord ship, Faction faction)
