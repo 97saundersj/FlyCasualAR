@@ -241,7 +241,7 @@ namespace SubPhases
 
             if (inReposition)  {
                 if (CameraScript.InputMouseIsEnabled) PerformDrag();
-                if (CameraScript.InputTouchIsEnabled) PerformTouchDragRotate();
+                if (CameraScript.InputTouchIsEnabled) PerformDrag();// Commented out to work for vr PerformTouchDragRotate();
             }
             CheckPerformRotation();
         }
@@ -333,7 +333,6 @@ namespace SubPhases
             }
         }
 
-        // TODO: Update this with XR
         private void PerformDrag()
         {
             RaycastHit hit;
@@ -559,7 +558,7 @@ namespace SubPhases
 
         public override void ProcessClick()
         {
-            if (inReposition && !IsLocked && CameraScript.InputMouseIsEnabled)
+            if (inReposition && !IsLocked) //&&  Disabled for xr CameraScript.InputMouseIsEnabled)
             {
                 IsLocked = true;
                 UI.CallClickNextPhase();
